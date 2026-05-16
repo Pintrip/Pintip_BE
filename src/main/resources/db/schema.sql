@@ -3,6 +3,7 @@
 -- 로그인/인증 없음, 세션 UUID 기반 유지
 -- =========================================================
 
+DROP TABLE IF EXISTS trip_session_quest_reviews;
 DROP TABLE IF EXISTS trip_sessions;
 DROP TABLE IF EXISTS image_card_quests;
 DROP TABLE IF EXISTS dong_image_mappings;
@@ -51,10 +52,30 @@ CREATE TABLE trip_sessions
     status              VARCHAR(20) NOT NULL DEFAULT 'ACTIVE', -- ACTIVE | COMPLETED | EXPIRED
     created_at          TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at          TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 상태 변경 시 갱신
-    expired_at          TIMESTAMP   NOT NULL,                  -- 세션 만료 시각 (생성 후 약 2일)
+    expired_at          TIMESTAMP   NOT NULL,                  -- 세션 만료 시각 (생성 후 2일)
     CONSTRAINT fk_sessions_dong FOREIGN KEY (dong_id) REFERENCES dongs (id)
+);
+
+-- 세션별 퀘스트 후기 (퀘스트당 1개)
+CREATE TABLE trip_session_quest_reviews
+(
+    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
+    session_id      VARCHAR(36)   NOT NULL,
+    image_card_id   BIGINT        NOT NULL,
+    quest_id        BIGINT        NOT NULL,
+    discovered_note VARCHAR(500)  NOT NULL,
+    review_text     VARCHAR(2000) NOT NULL,
+    mood_tags       JSON          NULL,
+    created_at      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_review_session FOREIGN KEY (session_id) REFERENCES trip_sessions (id),
+    CONSTRAINT fk_review_image_card FOREIGN KEY (image_card_id) REFERENCES dong_image_mappings (id),
+    CONSTRAINT fk_review_quest FOREIGN KEY (quest_id) REFERENCES image_card_quests (id),
+    CONSTRAINT uq_session_quest_review UNIQUE (session_id, quest_id)
 );
 
 CREATE INDEX idx_mapping_dong_id ON dong_image_mappings (dong_id);
 CREATE INDEX idx_card_quest_card_id ON image_card_quests (image_card_id);
 CREATE INDEX idx_sessions_dong_id ON trip_sessions (dong_id);
+CREATE INDEX idx_review_session_id ON trip_session_quest_reviews (session_id);
+CREATE INDEX idx_review_session_card ON trip_session_quest_reviews (session_id, image_card_id);

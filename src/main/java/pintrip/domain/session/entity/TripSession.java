@@ -3,6 +3,8 @@ package pintrip.domain.session.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import pintrip.domain.dong.entity.Dong;
+import pintrip.domain.session.TripSessionPolicy;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -39,7 +41,7 @@ public class TripSession {
         session.status = "ACTIVE";
         session.createdAt = LocalDateTime.now();
         session.updatedAt = LocalDateTime.now();
-        session.expiredAt = session.createdAt.plusDays(2);
+        session.expiredAt = session.createdAt.plusDays(TripSessionPolicy.EXPIRE_DAYS);
         return session;
     }
 

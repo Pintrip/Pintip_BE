@@ -1,7 +1,9 @@
-# 핀트립 MVP ERD (동·장소·퀘스트·세션)
+# 핀트립 MVP ERD
 
-이 문서는 `src/main/resources/db/schema.sql`을 기준으로 정리한 ERD다.  
-DDL·목데이터 상세는 `src/main/resources/db/README.md`를 본다.
+기준 데이터: `pintrip_image_quest_mapping_with_neighborhood.csv`  
+인증 없음 · **UUID 세션** · 만료 **2일**
+
+DDL/seed: [../resources/db/README.md](../resources/db/README.md) · API: [백엔드_개발_실행계획.md](백엔드_개발_실행계획.md)
 
 ---
 
@@ -9,48 +11,55 @@ DDL·목데이터 상세는 `src/main/resources/db/README.md`를 본다.
 
 ```mermaid
 erDiagram
-    DONGS ||--o{ PLACES : has
+    DONGS ||--o{ DONG_IMAGE_MAPPINGS : has
+    DONG_IMAGE_MAPPINGS ||--o{ IMAGE_CARD_QUESTS : has
     DONGS ||--o{ TRIP_SESSIONS : selected_in
-    PLACES ||--o{ QUESTS : has
-    PLACES ||--o{ TRIP_SESSIONS : selected_by
-    QUESTS ||--o{ TRIP_SESSIONS : selected_by
+    TRIP_SESSIONS ||--o{ TRIP_SESSION_QUEST_REVIEWS : has
+    DONG_IMAGE_MAPPINGS ||--o{ TRIP_SESSION_QUEST_REVIEWS : referenced_by
+    IMAGE_CARD_QUESTS ||--o{ TRIP_SESSION_QUEST_REVIEWS : reviewed_in
 
     DONGS {
         bigint id PK
         varchar name
-        varchar city
-        varchar district
-        varchar description
         boolean is_active
         timestamp created_at
     }
 
-    PLACES {
+    DONG_IMAGE_MAPPINGS {
         bigint id PK
         bigint dong_id FK
-        varchar name
-        varchar category
-        varchar description
-        varchar image_url
-        varchar map_keyword
+        varchar image_file
+        varchar image_headline
+        varchar image_sub_description
         timestamp created_at
     }
 
-    QUESTS {
+    IMAGE_CARD_QUESTS {
         bigint id PK
-        bigint place_id FK
-        varchar title
-        varchar description
-        varchar difficulty
+        bigint image_card_id FK
+        tinyint quest_order
+        varchar quest_title
+        varchar quest_description
         timestamp created_at
     }
 
     TRIP_SESSIONS {
         varchar id PK
         bigint dong_id FK
-        bigint selected_place_id FK
-        bigint selected_quest_id FK
         varchar status
+        timestamp created_at
+        timestamp updated_at
+        timestamp expired_at
+    }
+
+    TRIP_SESSION_QUEST_REVIEWS {
+        bigint id PK
+        varchar session_id FK
+        bigint image_card_id FK
+        bigint quest_id FK
+        varchar discovered_note
+        varchar review_text
+        json mood_tags
         timestamp created_at
         timestamp updated_at
     }
@@ -58,68 +67,24 @@ erDiagram
 
 ---
 
-## 2. 테이블별 설계 포인트
+## 2. 설계 포인트
 
-### `dongs`
-
-- 프론트에 제공되는 동 목록(mock 10개)
-- 프론트가 랜덤 UI로 돌린 뒤 **최종 동 1개**를 서버에 전달하면 세션 생성
-- `is_active`로 목데이터 노출 on/off 제어
-
-### `places`
-
-- 동(`dong_id`)당 place 3개 (총 30개 mock)
-- `image_url`: 장소 대표 이미지 1장 (스토리지 미정, mock URL 사용)
-- `map_keyword`: 외부 지도 검색 링크 생성용
-
-### `quests`
-
-- mock 20개
-- `place_id` FK로 특정 place에 연결
-- 장소 랜덤 이후, 해당 place(또는 동 소속 place) 기준으로 퀘스트 랜덤
-
-### `trip_sessions`
-
-- 로그인 대체 식별자: `id`(UUID 문자열)
-- **세션 생성 시점에 `dong_id` 필수** (별도 지역 PATCH 없음)
-- `selected_place_id`, `selected_quest_id`는 랜덤 API 호출 후 저장
-- `status`: `ACTIVE` / `COMPLETED` / `CANCELLED`
+- `dongs`: 동네 목록(10개)
+- `dong_image_mappings`: 동네별 카드 3개(총 30개)
+- `image_card_quests`: 카드별 퀘스트 3개(총 90개, 문구+설명)
+- `trip_sessions`: 기존 세션 유지 (`dong_id`, 상태/시간 정보, 만료 2일)
+- `trip_session_quest_reviews`: 세션별 퀘스트 후기 (퀘스트당 1개)
 
 ---
 
-## 3. DDL 위치
-
-실제 DDL은 아래 파일을 단일 소스로 사용한다.
-
-- `src/main/resources/db/schema.sql`
-- `src/main/resources/db/data.sql`
-
----
-
-## 4. API와 ERD 매핑
+## 3. API 매핑
 
 | API | DB 동작 |
 |-----|---------|
-| `GET /dongs` | `dongs` 조회 (`is_active = true`) |
-| `POST /trip-sessions` | `trip_sessions` insert (`id`, `dong_id`) |
-| `POST /trip-sessions/{sessionId}/place/random` | `places`에서 `dong_id` 기준 랜덤 → `selected_place_id` update |
-| `POST /trip-sessions/{sessionId}/quest/random` | `quests`에서 `place_id` 기준 랜덤 → `selected_quest_id` update |
-| `GET /trip-sessions/{sessionId}` | `trip_sessions` + `dongs` + `places` + `quests` 조회 |
-
----
-
-## 5. 목데이터 규모 (고정)
-
-| 테이블 | 건수 |
-|--------|------|
-| `dongs` | 10 |
-| `places` | 30 (동당 3) |
-| `quests` | 20 |
-
----
-
-## 6. P1 확장 후보 (현재 스키마 제외)
-
-- `trip_logs` (여행 기록)
-- `reroll_count`, 다시 뽑기 제한
-- 이미지 실제 스토리지(S3/로컬) 연동
+| `GET /dongs` | `dongs` 활성 목록 조회 |
+| `POST /trip-sessions` | 세션 생성(`dong_id`) |
+| `GET /dongs/{dongId}/image-cards` | 카드 3개 + 카드별 퀘스트 3개 반환 |
+| `GET /trip-sessions/{sessionId}` | 세션(`dong_id`, 상태) 복구 |
+| `PUT /trip-sessions/{sessionId}/quest-reviews/{questId}` | 퀘스트 후기 저장/수정 |
+| `GET /trip-sessions/{sessionId}/quest-reviews` | 세션 퀘스트 후기 목록 |
+| `PATCH /trip-sessions/{sessionId}/complete` | `status` → `COMPLETED` |

@@ -10,11 +10,15 @@ import pintrip.domain.image.repository.DongImageMappingRepository;
 import pintrip.domain.image.repository.ImageCardQuestRepository;
 import pintrip.domain.session.dto.ImageCardQuestResponse;
 import pintrip.domain.session.dto.ImageCardResponse;
+import pintrip.domain.session.repository.TripSessionQuestReviewRepository;
+import pintrip.domain.session.service.TripSessionStatusResolver;
 import pintrip.global.error.BusinessException;
 import pintrip.global.error.ErrorCode;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,9 +29,18 @@ public class DongContentService {
     private final DongRepository dongRepository;
     private final DongImageMappingRepository dongImageMappingRepository;
     private final ImageCardQuestRepository imageCardQuestRepository;
+    private final TripSessionQuestReviewRepository reviewRepository;
+    private final TripSessionStatusResolver sessionStatusResolver;
 
     public List<ImageCardResponse> getImageCards(Long dongId) {
+        return getImageCards(dongId, null);
+    }
+
+    @Transactional
+    public List<ImageCardResponse> getImageCards(Long dongId, String sessionId) {
         findActiveDong(dongId);
+
+        Set<Long> completedQuestIds = resolveCompletedQuestIds(dongId, sessionId);
 
         List<DongImageMapping> mappings = dongImageMappingRepository.findAllByDongIdOrderByIdAsc(dongId);
         if (mappings.isEmpty()) {
@@ -43,7 +56,10 @@ public class DongContentService {
                 .stream()
                 .collect(Collectors.groupingBy(
                         q -> q.getImageCard().getId(),
-                        Collectors.mapping(ImageCardQuestResponse::new, Collectors.toList())
+                        Collectors.mapping(
+                                q -> new ImageCardQuestResponse(q, completedQuestIds.contains(q.getId())),
+                                Collectors.toList()
+                        )
                 ));
 
         return mappings.stream()
@@ -55,6 +71,22 @@ public class DongContentService {
                     return new ImageCardResponse(mapping, quests);
                 })
                 .toList();
+    }
+
+    private Set<Long> resolveCompletedQuestIds(Long dongId, String sessionId) {
+        if (sessionId == null || sessionId.isBlank()) {
+            return Set.of();
+        }
+
+        var session = sessionStatusResolver.resolveForRead(sessionId);
+        if (!session.getDong().getId().equals(dongId)) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
+
+        return reviewRepository.findAllBySession_IdOrderByImageCard_IdAscQuest_QuestOrderAsc(sessionId)
+                .stream()
+                .map(review -> review.getQuest().getId())
+                .collect(Collectors.toCollection(HashSet::new));
     }
 
     private Dong findActiveDong(Long dongId) {
