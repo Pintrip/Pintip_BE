@@ -1,20 +1,14 @@
 name: Dev CI/CD
 
 on:
-  pull_request:
+  push:
     branches:
       - main
-    types:
-      - closed
-  workflow_dispatch: # 수동 실행 지원
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    # 수정: PR이 merge되었거나, 혹은 수동으로 실행(workflow_dispatch)했을 때만 작동하도록 변경
-    if: |
-      (github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main') ||
-      github.event_name == 'workflow_dispatch'
 
     steps:
       # v3 -> v4로 업데이트 (Node 버전 관련 경고 해결)
