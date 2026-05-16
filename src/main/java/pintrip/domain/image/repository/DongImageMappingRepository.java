@@ -6,5 +6,5 @@ import pintrip.domain.image.entity.DongImageMapping;
 import java.util.List;
 
 public interface DongImageMappingRepository extends JpaRepository<DongImageMapping, Long> {
-    List<DongImageMapping> findAllByDongId(Long dongId);
+    List<DongImageMapping> findAllByDongIdOrderByIdAsc(Long dongId);
 }

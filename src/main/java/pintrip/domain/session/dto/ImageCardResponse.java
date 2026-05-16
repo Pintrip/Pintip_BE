@@ -3,7 +3,6 @@ package pintrip.domain.session.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import pintrip.domain.image.entity.DongImageMapping;
-import pintrip.domain.quest.dto.QuestTemplateResponse;
 
 import java.util.List;
 
@@ -12,7 +11,7 @@ import java.util.List;
 public class ImageCardResponse {
 
     @Schema(description = "이미지 카드 ID", example = "1")
-    private final Long mappingId;
+    private final Long imageCardId;
 
     @Schema(description = "소속 동네 ID", example = "1")
     private final Long dongId;
@@ -21,20 +20,20 @@ public class ImageCardResponse {
     private final String imageFile;
 
     @Schema(description = "카드 대표 문장", example = "오래된 공장의 흔적을 따라 걷는 길")
-    private final String headline;
+    private final String imageHeadline;
 
     @Schema(description = "카드 보조 설명")
-    private final String subDescription;
+    private final String imageSubDescription;
 
     @Schema(description = "해당 카드에 고정 매핑된 퀘스트 3개")
-    private final List<QuestTemplateResponse> quests;
+    private final List<ImageCardQuestResponse> quests;
 
-    public ImageCardResponse(DongImageMapping mapping, List<QuestTemplateResponse> quests) {
-        this.mappingId = mapping.getId();
+    public ImageCardResponse(DongImageMapping mapping, List<ImageCardQuestResponse> quests) {
+        this.imageCardId = mapping.getId();
         this.dongId = mapping.getDong().getId();
         this.imageFile = mapping.getImageFile();
-        this.headline = mapping.getImageHeadline();
-        this.subDescription = mapping.getImageSubDescription();
+        this.imageHeadline = mapping.getImageHeadline();
+        this.imageSubDescription = mapping.getImageSubDescription();
         this.quests = quests;
     }
 }
