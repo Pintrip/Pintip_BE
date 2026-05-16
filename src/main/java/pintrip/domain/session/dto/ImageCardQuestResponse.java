@@ -17,7 +17,7 @@ public class ImageCardQuestResponse {
     @Schema(description = "퀘스트 설명")
     private final String questDescription;
 
-    @Schema(description = "세션에서 후기 작성 완료 여부 (sessionId 쿼리 전달 시)")
+    @Schema(description = "세션에서 후기 작성 완료 여부 (세션 조회 응답의 selectedImageCard에서만 반영)")
     private final boolean isCompleted;
 
     public ImageCardQuestResponse(ImageCardQuest quest) {
