@@ -3,7 +3,6 @@ package pintrip.domain.session;
 import org.junit.jupiter.api.Test;
 import pintrip.domain.dong.entity.Dong;
 import pintrip.domain.image.entity.DongImageMapping;
-import pintrip.domain.image.entity.ImageCardQuest;
 import pintrip.domain.session.entity.TripSession;
 
 import java.time.LocalDateTime;
@@ -26,8 +25,7 @@ class TripSessionPolicyTest {
     void createSession_setsExpiredAtAfterTwoDays() {
         Dong dong = new Dong();
         DongImageMapping imageCard = new DongImageMapping();
-        ImageCardQuest quest = new ImageCardQuest();
-        TripSession session = TripSession.create(dong, imageCard, quest);
+        TripSession session = TripSession.create(dong, imageCard);
 
         LocalDateTime expected = session.getCreatedAt().plusDays(2);
         assertThat(session.getExpiredAt()).isEqualTo(expected);

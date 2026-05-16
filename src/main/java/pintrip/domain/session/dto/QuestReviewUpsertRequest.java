@@ -6,8 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
-import java.util.List;
-
 @Schema(description = "퀘스트 후기 저장 요청")
 @Getter
 public class QuestReviewUpsertRequest {
@@ -25,7 +23,4 @@ public class QuestReviewUpsertRequest {
     @Size(max = 2000)
     @Schema(description = "짧은 후기", example = "유명한 장소는 아니지만, 평범한 동네를 새롭게 보게 됐다")
     private String reviewText;
-
-    @Schema(description = "이 장소는 어땠나요? (감정 태그)", example = "[\"조용했다\", \"다시 가고 싶다\"]")
-    private List<String> moodTags;
 }

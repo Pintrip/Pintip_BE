@@ -4,11 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import pintrip.domain.image.entity.DongImageMapping;
 import pintrip.domain.image.entity.ImageCardQuest;
-import pintrip.domain.session.converter.StringListJsonConverter;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Entity
@@ -43,10 +40,6 @@ public class TripSessionQuestReview {
     @Column(name = "review_text", nullable = false, length = 2000)
     private String reviewText;
 
-    @Convert(converter = StringListJsonConverter.class)
-    @Column(name = "mood_tags", columnDefinition = "json")
-    private List<String> moodTags = new ArrayList<>();
-
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
@@ -61,8 +54,7 @@ public class TripSessionQuestReview {
             DongImageMapping imageCard,
             ImageCardQuest quest,
             String discoveredNote,
-            String reviewText,
-            List<String> moodTags
+            String reviewText
     ) {
         TripSessionQuestReview review = new TripSessionQuestReview();
         review.session = session;
@@ -70,7 +62,6 @@ public class TripSessionQuestReview {
         review.quest = quest;
         review.discoveredNote = discoveredNote;
         review.reviewText = reviewText;
-        review.moodTags = moodTags != null ? new ArrayList<>(moodTags) : new ArrayList<>();
         review.createdAt = LocalDateTime.now();
         review.updatedAt = review.createdAt;
         return review;
