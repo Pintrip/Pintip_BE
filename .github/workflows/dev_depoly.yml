@@ -3,7 +3,7 @@ name: Dev CI/CD
 on:
   pull_request:
     branches:
-      - develop
+      - main
     types:
       - closed
   workflow_dispatch: # 수동 실행 지원
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     # 수정: PR이 merge되었거나, 혹은 수동으로 실행(workflow_dispatch)했을 때만 작동하도록 변경
     if: |
-      (github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'develop') ||
+      (github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main') ||
       github.event_name == 'workflow_dispatch'
 
     steps:
@@ -51,7 +51,7 @@ jobs:
           # plain.jar를 제외하고 오직 실행 가능한(Executable) jar만 복사하기 위해 조건문 추가
           cp build/libs/*[!plain].jar deploy/application.jar
           cp Procfile deploy/Procfile
-          cp -r .ebextensions-dev deploy/.ebextensions 2>/dev/null || cp -r .ebextensions deploy/.ebextensions || true
+          cp -r .ebextensions_dev deploy/.ebextensions 2>/dev/null || cp -r .ebextensions deploy/.ebextensions || true
           cp -r .platform deploy/.platform 2>/dev/null || true
           cd deploy && zip -r deploy.zip .
 
@@ -60,9 +60,9 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACTION_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_ACTION_SECRET_ACCESS_KEY }}
-          application_name: breifing-dev
-          environment_name: Breifing-dev-env
+          application_name: pintrip-develop
+          environment_name: Pintrip-develop-env-1
           version_label: github-action-${{ steps.current-time.outputs.formattedTime }}
-          region: ap-northeast-1
+          region: ap-northeast-2
           deployment_package: deploy/deploy.zip
           wait_for_deployment: false # 빠른 피드백을 원하면 false 유지, 배포 성공 여부까지 확인하려면 true
