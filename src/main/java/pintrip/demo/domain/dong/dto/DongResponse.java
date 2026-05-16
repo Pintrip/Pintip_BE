@@ -7,15 +7,11 @@ import pintrip.demo.domain.dong.entity.Dong;
 public class DongResponse {
     private final Long id;
     private final String name;
-    private final String city;
-    private final String district;
-    private final String description;
+    private final boolean active;
 
     public DongResponse(Dong dong) {
         this.id = dong.getId();
         this.name = dong.getName();
-        this.city = dong.getCity();
-        this.district = dong.getDistrict();
-        this.description = dong.getDescription();
+        this.active = dong.isActive();
     }
 }

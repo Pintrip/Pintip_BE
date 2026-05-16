@@ -3,8 +3,6 @@ package pintrip.demo.domain.session.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import pintrip.demo.domain.dong.entity.Dong;
-import pintrip.demo.domain.place.entity.Place;
-import pintrip.demo.domain.quest.entity.Quest;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -20,14 +18,6 @@ public class TripSession {
     @JoinColumn(name = "dong_id", nullable = false)
     private Dong dong;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "selected_place_id")
-    private Place selectedPlace;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "selected_quest_id")
-    private Quest selectedQuest;
-
     @Column(nullable = false)
     private String status;
 
@@ -36,6 +26,9 @@ public class TripSession {
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(nullable = false)
+    private LocalDateTime expiredAt;
 
     protected TripSession() {}
 
@@ -46,16 +39,20 @@ public class TripSession {
         session.status = "ACTIVE";
         session.createdAt = LocalDateTime.now();
         session.updatedAt = LocalDateTime.now();
+        session.expiredAt = session.createdAt.plusDays(2);
         return session;
     }
 
-    public void assignPlace(Place place) {
-        this.selectedPlace = place;
-        this.updatedAt = LocalDateTime.now();
+    public boolean isActive() {
+        return "ACTIVE".equals(this.status);
     }
 
-    public void assignQuest(Quest quest) {
-        this.selectedQuest = quest;
+    public boolean isExpiredByTime() {
+        return LocalDateTime.now().isAfter(expiredAt);
+    }
+
+    public void complete() {
+        this.status = "COMPLETED";
         this.updatedAt = LocalDateTime.now();
     }
 }
