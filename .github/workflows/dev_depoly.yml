@@ -51,7 +51,7 @@ jobs:
           # plain.jar를 제외하고 오직 실행 가능한(Executable) jar만 복사하기 위해 조건문 추가
           cp build/libs/*[!plain].jar deploy/application.jar
           cp Procfile deploy/Procfile
-          cp -r .ebextensions-dev deploy/.ebextensions 2>/dev/null || cp -r .ebextensions deploy/.ebextensions || true
+          cp -r .ebextensions_dev deploy/.ebextensions 2>/dev/null || cp -r .ebextensions deploy/.ebextensions || true
           cp -r .platform deploy/.platform 2>/dev/null || true
           cd deploy && zip -r deploy.zip .
 
