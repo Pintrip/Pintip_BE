@@ -2,9 +2,11 @@ package pintrip.domain.session.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pintrip.domain.session.dto.QuestReviewResponse;
@@ -70,5 +72,43 @@ public class TripSessionController {
     public ResponseEntity<List<QuestReviewResponse>> getQuestReviews(
             @Parameter(description = "세션 UUID") @PathVariable String sessionId) {
         return ResponseEntity.ok(questReviewService.getReviews(sessionId));
+    }
+
+    @Operation(
+            summary = "추가 퀘스트 뽑기 (P1 · 미구현)",
+            description = "여행 중(세션 ACTIVE) 동일 동네·카드 풀에서 보너스 퀘스트 1개를 추가로 뽑는다. 비즈니스 로직 미구현."
+    )
+    @ApiResponse(responseCode = "501", description = "미구현")
+    @PostMapping("/{sessionId}/bonus-quests")
+    public ResponseEntity<Void> drawBonusQuest(
+            @Parameter(description = "세션 UUID") @PathVariable String sessionId,
+            @Parameter(description = "기준 imageCardId") @RequestParam Long imageCardId) {
+        return notImplemented();
+    }
+
+    @Operation(
+            summary = "비주류 점수 조회 (P1 · 미구현)",
+            description = "장소 주류성·퀘스트 보너스·후기 완료율 등을 합산한 비주류 점수를 반환한다. 비즈니스 로직 미구현."
+    )
+    @ApiResponse(responseCode = "501", description = "미구현")
+    @GetMapping("/{sessionId}/offbeat-score")
+    public ResponseEntity<Void> getOffbeatScore(
+            @Parameter(description = "세션 UUID") @PathVariable String sessionId) {
+        return notImplemented();
+    }
+
+    @Operation(
+            summary = "결과 카드 조회 (P1 · 미구현)",
+            description = "완료 화면·SNS 공유용 카드 요약(동네, 카드, 퀘스트, 후기, 점수) JSON을 반환한다. 비즈니스 로직 미구현."
+    )
+    @ApiResponse(responseCode = "501", description = "미구현")
+    @GetMapping("/{sessionId}/result-card")
+    public ResponseEntity<Void> getResultCard(
+            @Parameter(description = "세션 UUID") @PathVariable String sessionId) {
+        return notImplemented();
+    }
+
+    private static ResponseEntity<Void> notImplemented() {
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 }
