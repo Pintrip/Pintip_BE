@@ -70,7 +70,8 @@ public class TripSessionQuestReviewService {
     }
 
     private void validateSelectedImageCard(TripSession session, Long imageCardId) {
-        if (!session.getSelectedImageCard().getId().equals(imageCardId)) {
+        DongImageMapping selected = session.getSelectedImageCard();
+        if (selected == null || !selected.getId().equals(imageCardId)) {
             throw new BusinessException(ErrorCode.IMAGE_CARD_NOT_SELECTED);
         }
     }

@@ -21,7 +21,8 @@ public class WebConfig implements WebMvcConfigurer {
 				.toArray(String[]::new);
 
 		registry.addMapping("/**")
-				.allowedOrigins(origins)
+				// exact URL + 패턴(예: https://*.vercel.app) — Vercel Preview Origin 허용
+				.allowedOriginPatterns(origins)
 				.allowCredentials(true)
 				.allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
 				.allowedHeaders("*")

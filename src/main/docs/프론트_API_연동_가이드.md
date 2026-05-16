@@ -141,7 +141,7 @@ await fetch(`${API_BASE}/trip-sessions`, {
 
 | 증상 | 확인 |
 |------|------|
-| CORS 에러 | 백엔드 `CORS_ALLOWED_ORIGINS`에 `https://pintrip-fe.vercel.app` 포함 여부 (끝 `/` 없이) |
+| CORS **403** | EB `CORS_ALLOWED_ORIGINS`에 실제 Vercel URL + `https://*.vercel.app`(프리뷰) 포함. 또는 `VITE_API_BASE_URL=/backend`로 same-origin 프록시 사용 |
 | Mixed Content / `ERR_BLOCKED` | `vercel.json` 적용·재배포, `VITE_API_BASE_URL=/backend` |
 | 404 on `/api/...` | `/api` prefix 제거 (`/backend/dongs` 형태로 호출) |
 | 502 | 백엔드 장애 — `/backend/health` 먼저 확인 |

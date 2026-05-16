@@ -55,7 +55,6 @@ public class TripSessionService {
         return new TripSessionCreateResponse(session, selectedImageCard);
     }
 
-    @Transactional(readOnly = true)
     public TripSessionResponse getSession(String sessionId) {
         TripSession session = sessionStatusResolver.resolveForRead(sessionId);
         Set<Long> completedQuestIds = reviewRepository
@@ -72,7 +71,6 @@ public class TripSessionService {
         return new TripSessionResponse(session, selectedImageCard, reviews);
     }
 
-    @Transactional(readOnly = true)
     public TripSessionExpiredResponse getExpiredStatus(String sessionId) {
         TripSession session = sessionStatusResolver.resolveForRead(sessionId);
         return new TripSessionExpiredResponse(session);
@@ -96,7 +94,7 @@ public class TripSessionService {
     }
 
     private ImageCardResponse buildSelectedImageCard(TripSession session, Set<Long> completedQuestIds) {
-        DongImageMapping mapping = session.getSelectedImageCard();
+        DongImageMapping mapping = resolveSelectedImageCard(session);
         List<ImageCardQuestResponse> quests = imageCardQuestRepository
                 .findAllByImageCardIdInOrderByImageCardIdAscQuestOrderAsc(List.of(mapping.getId()))
                 .stream()
@@ -106,5 +104,23 @@ public class TripSessionService {
             throw new BusinessException(ErrorCode.QUEST_DATA_INVALID);
         }
         return new ImageCardResponse(mapping, quests);
+    }
+
+    /**
+     * 스키마 마이그레이션 이전 세션(selected_image_card_id NULL) 복구용.
+     */
+    private DongImageMapping resolveSelectedImageCard(TripSession session) {
+        DongImageMapping mapping = session.getSelectedImageCard();
+        if (mapping != null) {
+            return mapping;
+        }
+        return reviewRepository.findAllBySession_IdOrderByImageCard_IdAscQuest_QuestOrderAsc(session.getId())
+                .stream()
+                .map(review -> review.getImageCard())
+                .findFirst()
+                .orElseGet(() -> dongImageMappingRepository.findAllByDongIdOrderByIdAsc(session.getDong().getId())
+                        .stream()
+                        .findFirst()
+                        .orElseThrow(() -> new BusinessException(ErrorCode.IMAGE_CARD_NOT_FOUND)));
     }
 }

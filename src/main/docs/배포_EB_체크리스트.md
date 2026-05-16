@@ -22,7 +22,7 @@
 **권장값:**
 
 ```text
-https://pintrip-fe.vercel.app,http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000
+https://pintrip-fe.vercel.app,http://pintrip-fe.vercel.app,https://*.vercel.app,http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000
 ```
 
 > EB에 RDS를 **연동**해 두면 `RDS_*` 변수가 자동 생성되는 경우가 있다. 콘솔에 이미 있으면 중복 입력하지 않아도 된다.

@@ -107,7 +107,7 @@ class TripSessionQuestReviewServiceTest {
         assertThatThrownBy(() -> questReviewService.saveReview("session-1", 10L, request(2L)))
                 .isInstanceOf(BusinessException.class)
                 .extracting("errorCode")
-                .isEqualTo(ErrorCode.INVALID_REQUEST);
+                .isEqualTo(ErrorCode.IMAGE_CARD_NOT_SELECTED);
     }
 
     @Test
