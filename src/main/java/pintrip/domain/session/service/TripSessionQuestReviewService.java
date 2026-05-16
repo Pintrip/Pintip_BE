@@ -29,6 +29,7 @@ public class TripSessionQuestReviewService {
 
     public QuestReviewResponse saveReview(String sessionId, Long questId, QuestReviewUpsertRequest request) {
         TripSession session = sessionStatusResolver.requireWritable(sessionId);
+        validateSelected(session, request.getImageCardId(), questId);
         DongImageMapping imageCard = validateImageCard(session, request.getImageCardId());
         ImageCardQuest quest = validateQuest(request.getImageCardId(), questId);
 
@@ -67,5 +68,14 @@ public class TripSessionQuestReviewService {
     private ImageCardQuest validateQuest(Long imageCardId, Long questId) {
         return imageCardQuestRepository.findByIdAndImageCard_Id(questId, imageCardId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.QUEST_NOT_FOUND));
+    }
+
+    private void validateSelected(TripSession session, Long imageCardId, Long questId) {
+        if (!session.getSelectedImageCard().getId().equals(imageCardId)) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
+        if (!session.getSelectedQuest().getId().equals(questId)) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
     }
 }

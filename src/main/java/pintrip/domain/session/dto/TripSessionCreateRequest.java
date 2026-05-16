@@ -11,4 +11,12 @@ public class TripSessionCreateRequest {
     @NotNull
     @Schema(description = "사용자가 선택한 동네 ID (GET /dongs 목록의 id)", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Long dongId;
+
+    @NotNull
+    @Schema(description = "사용자가 선택한 이미지 카드 ID (dong_image_mappings.id)", example = "11", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Long imageCardId;
+
+    @NotNull
+    @Schema(description = "사용자가 선택한 퀘스트 ID (image_card_quests.id)", example = "32", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Long questId;
 }

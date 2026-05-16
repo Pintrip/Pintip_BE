@@ -29,14 +29,14 @@ public class TripSessionController {
     private final TripSessionService tripSessionService;
     private final TripSessionQuestReviewService questReviewService;
 
-    @Operation(summary = "세션 생성", description = "동네·카드·퀘스트 UI 완료 후 최종 확정 시 호출")
+    @Operation(summary = "세션 생성", description = "사용자가 선택한 동네·이미지카드·퀘스트를 함께 저장하고 sessionId를 발급")
     @PostMapping
     public ResponseEntity<TripSessionCreateResponse> createSession(
             @Valid @RequestBody TripSessionCreateRequest request) {
         return ResponseEntity.ok(tripSessionService.createSession(request));
     }
 
-    @Operation(summary = "세션 조회 (헤더)", description = "X-Session-Id 헤더로 조회. 카드·퀘스트 목록은 GET /dongs/{dongId}/... 로 재조회")
+    @Operation(summary = "세션 조회 (헤더)", description = "X-Session-Id 헤더로 조회. 선택된 동/카드/퀘스트와 후기 목록을 함께 반환")
     @GetMapping
     public ResponseEntity<TripSessionResponse> getSession(
             @Parameter(description = "POST /trip-sessions 로 받은 sessionId", required = true)

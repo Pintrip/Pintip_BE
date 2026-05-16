@@ -16,12 +16,20 @@ public class TripSessionCreateResponse {
     @Schema(description = "선택된 동네 ID", example = "1")
     private final Long dongId;
 
+    @Schema(description = "선택된 이미지 카드 ID", example = "11")
+    private final Long imageCardId;
+
+    @Schema(description = "선택된 퀘스트 ID", example = "32")
+    private final Long questId;
+
     @Schema(description = "세션 생성 시각")
     private final LocalDateTime createdAt;
 
     public TripSessionCreateResponse(TripSession session) {
         this.sessionId = session.getId();
         this.dongId = session.getDong().getId();
+        this.imageCardId = session.getSelectedImageCard().getId();
+        this.questId = session.getSelectedQuest().getId();
         this.createdAt = session.getCreatedAt();
     }
 }
