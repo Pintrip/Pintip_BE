@@ -6,6 +6,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pintrip.domain.dong.entity.Dong;
+import pintrip.domain.image.entity.DongImageMapping;
+import pintrip.domain.image.entity.ImageCardQuest;
 import pintrip.domain.session.entity.TripSession;
 import pintrip.domain.session.repository.TripSessionQuestReviewRepository;
 import pintrip.domain.session.repository.TripSessionRepository;
@@ -67,7 +69,13 @@ class TripSessionStatusResolverTest {
 
     private TripSession activeSession(String id) {
         Dong dong = new Dong();
-        TripSession session = TripSession.create(dong);
+        DongImageMapping imageCard = new DongImageMapping();
+        setField(imageCard, "id", 1L);
+        setField(imageCard, "dong", dong);
+        ImageCardQuest quest = new ImageCardQuest();
+        setField(quest, "id", 1L);
+        setField(quest, "imageCard", imageCard);
+        TripSession session = TripSession.create(dong, imageCard, quest);
         setField(session, "id", id);
         return session;
     }

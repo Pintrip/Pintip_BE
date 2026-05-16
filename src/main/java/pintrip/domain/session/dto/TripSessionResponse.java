@@ -5,6 +5,8 @@ import lombok.Getter;
 import pintrip.domain.dong.dto.DongResponse;
 import pintrip.domain.session.entity.TripSession;
 
+import java.util.List;
+
 @Schema(description = "세션 조회·복구 응답 (새로고침·외부 링크 복귀용)")
 @Getter
 public class TripSessionResponse {
@@ -18,9 +20,21 @@ public class TripSessionResponse {
     @Schema(description = "세션 상태", example = "ACTIVE", allowableValues = {"ACTIVE", "COMPLETED", "EXPIRED"})
     private final String status;
 
-    public TripSessionResponse(TripSession session) {
+    @Schema(description = "세션에서 선택한 이미지 카드 ID")
+    private final Long selectedImageCardId;
+
+    @Schema(description = "세션에서 선택한 퀘스트 ID")
+    private final Long selectedQuestId;
+
+    @Schema(description = "세션 후기 목록")
+    private final List<QuestReviewResponse> reviews;
+
+    public TripSessionResponse(TripSession session, List<QuestReviewResponse> reviews) {
         this.sessionId = session.getId();
         this.dong = session.getDong() != null ? new DongResponse(session.getDong()) : null;
         this.status = session.getStatus();
+        this.selectedImageCardId = session.getSelectedImageCard() != null ? session.getSelectedImageCard().getId() : null;
+        this.selectedQuestId = session.getSelectedQuest() != null ? session.getSelectedQuest().getId() : null;
+        this.reviews = reviews;
     }
 }

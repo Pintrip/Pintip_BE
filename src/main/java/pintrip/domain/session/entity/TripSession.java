@@ -3,6 +3,8 @@ package pintrip.domain.session.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import pintrip.domain.dong.entity.Dong;
+import pintrip.domain.image.entity.DongImageMapping;
+import pintrip.domain.image.entity.ImageCardQuest;
 import pintrip.domain.session.TripSessionPolicy;
 
 import java.time.LocalDateTime;
@@ -20,6 +22,14 @@ public class TripSession {
     @JoinColumn(name = "dong_id", nullable = false)
     private Dong dong;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "selected_image_card_id", nullable = false)
+    private DongImageMapping selectedImageCard;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "selected_quest_id", nullable = false)
+    private ImageCardQuest selectedQuest;
+
     @Column(nullable = false)
     private String status;
 
@@ -34,10 +44,12 @@ public class TripSession {
 
     protected TripSession() {}
 
-    public static TripSession create(Dong dong) {
+    public static TripSession create(Dong dong, DongImageMapping selectedImageCard, ImageCardQuest selectedQuest) {
         TripSession session = new TripSession();
         session.id = UUID.randomUUID().toString();
         session.dong = dong;
+        session.selectedImageCard = selectedImageCard;
+        session.selectedQuest = selectedQuest;
         session.status = "ACTIVE";
         session.createdAt = LocalDateTime.now();
         session.updatedAt = LocalDateTime.now();

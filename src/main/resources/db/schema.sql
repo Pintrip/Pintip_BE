@@ -49,11 +49,15 @@ CREATE TABLE trip_sessions
 (
     id                  VARCHAR(36) PRIMARY KEY,               -- 세션 UUID (X-Session-Id 헤더·URL path)
     dong_id             BIGINT      NOT NULL,                  -- 사용자가 확정한 동네 FK → dongs.id
+    selected_image_card_id BIGINT   NOT NULL,                  -- 사용자가 선택한 이미지 카드 FK → dong_image_mappings.id
+    selected_quest_id   BIGINT      NOT NULL,                  -- 사용자가 선택한 퀘스트 FK → image_card_quests.id
     status              VARCHAR(20) NOT NULL DEFAULT 'ACTIVE', -- ACTIVE | COMPLETED | EXPIRED
     created_at          TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at          TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 상태 변경 시 갱신
     expired_at          TIMESTAMP   NOT NULL,                  -- 세션 만료 시각 (생성 후 2일)
-    CONSTRAINT fk_sessions_dong FOREIGN KEY (dong_id) REFERENCES dongs (id)
+    CONSTRAINT fk_sessions_dong FOREIGN KEY (dong_id) REFERENCES dongs (id),
+    CONSTRAINT fk_sessions_selected_image_card FOREIGN KEY (selected_image_card_id) REFERENCES dong_image_mappings (id),
+    CONSTRAINT fk_sessions_selected_quest FOREIGN KEY (selected_quest_id) REFERENCES image_card_quests (id)
 );
 
 -- 세션별 퀘스트 후기 (퀘스트당 1개)
