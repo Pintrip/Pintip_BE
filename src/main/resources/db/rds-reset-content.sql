@@ -46,7 +46,6 @@ CREATE TABLE trip_session_quest_reviews
     quest_id        BIGINT        NOT NULL,
     discovered_note VARCHAR(500)  NOT NULL,
     review_text     VARCHAR(2000) NOT NULL,
-    mood_tags       JSON          NULL,
     created_at      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_review_session FOREIGN KEY (session_id) REFERENCES trip_sessions (id),

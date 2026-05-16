@@ -45,7 +45,7 @@ class TripSessionQuestReviewServiceTest {
     void saveReview_createsNewReview() {
         DongImageMapping imageCard = imageCard(1L, 1L);
         ImageCardQuest quest = quest(10L, imageCard);
-        TripSession session = activeSession("session-1", 1L, imageCard, quest);
+        TripSession session = activeSession("session-1", 1L, imageCard);
         QuestReviewUpsertRequest request = request(1L);
 
         when(sessionStatusResolver.requireWritable("session-1")).thenReturn(session);
@@ -63,7 +63,6 @@ class TripSessionQuestReviewServiceTest {
         assertThat(response.getQuestId()).isEqualTo(10L);
         assertThat(response.getDiscoveredNote()).isEqualTo("발견");
         assertThat(response.isCompleted()).isTrue();
-        assertThat(response.isWritten()).isTrue();
         verify(reviewRepository).save(any(TripSessionQuestReview.class));
     }
 
@@ -71,9 +70,9 @@ class TripSessionQuestReviewServiceTest {
     void saveReview_throwsWhenReviewAlreadyExists() {
         DongImageMapping imageCard = imageCard(1L, 1L);
         ImageCardQuest quest = quest(10L, imageCard);
-        TripSession session = activeSession("session-1", 1L, imageCard, quest);
+        TripSession session = activeSession("session-1", 1L, imageCard);
         TripSessionQuestReview existing = TripSessionQuestReview.create(
-                session, imageCard, quest, "old", "old review", List.of("낯설었다")
+                session, imageCard, quest, "old", "old review"
         );
 
         when(sessionStatusResolver.requireWritable("session-1")).thenReturn(session);
@@ -101,8 +100,7 @@ class TripSessionQuestReviewServiceTest {
     @Test
     void saveReview_throwsWhenImageCardNotSelectedInSession() {
         DongImageMapping selectedCard = imageCard(1L, 1L);
-        ImageCardQuest selectedQuest = quest(10L, selectedCard);
-        TripSession session = activeSession("session-1", 1L, selectedCard, selectedQuest);
+        TripSession session = activeSession("session-1", 1L, selectedCard);
 
         when(sessionStatusResolver.requireWritable("session-1")).thenReturn(session);
 
@@ -115,21 +113,22 @@ class TripSessionQuestReviewServiceTest {
     @Test
     void saveReview_throwsWhenQuestNotLinkedToCard() {
         DongImageMapping imageCard = imageCard(1L, 1L);
-        ImageCardQuest selectedQuest = quest(99L, imageCard);
-        TripSession session = activeSession("session-1", 1L, imageCard, selectedQuest);
+        TripSession session = activeSession("session-1", 1L, imageCard);
 
         when(sessionStatusResolver.requireWritable("session-1")).thenReturn(session);
+        when(dongImageMappingRepository.findById(1L)).thenReturn(Optional.of(imageCard));
+        when(imageCardQuestRepository.findByIdAndImageCard_Id(10L, 1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> questReviewService.saveReview("session-1", 10L, request(1L)))
                 .isInstanceOf(BusinessException.class)
                 .extracting("errorCode")
-                .isEqualTo(ErrorCode.INVALID_REQUEST);
+                .isEqualTo(ErrorCode.QUEST_NOT_FOUND);
     }
 
-    private TripSession activeSession(String id, Long dongId, DongImageMapping selectedImageCard, ImageCardQuest selectedQuest) {
+    private TripSession activeSession(String id, Long dongId, DongImageMapping selectedImageCard) {
         Dong dong = new Dong();
         setField(dong, "id", dongId);
-        TripSession session = TripSession.create(dong, selectedImageCard, selectedQuest);
+        TripSession session = TripSession.create(dong, selectedImageCard);
         setField(session, "id", id);
         return session;
     }
@@ -158,7 +157,6 @@ class TripSessionQuestReviewServiceTest {
         setField(request, "imageCardId", imageCardId);
         setField(request, "discoveredNote", "발견");
         setField(request, "reviewText", "후기");
-        setField(request, "moodTags", List.of("조용했다"));
         return request;
     }
 

@@ -5,7 +5,6 @@ import lombok.Getter;
 import pintrip.domain.session.entity.TripSessionQuestReview;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Schema(description = "퀘스트 후기 응답")
 @Getter
@@ -35,14 +34,8 @@ public class QuestReviewResponse {
     @Schema(description = "짧은 후기")
     private final String reviewText;
 
-    @Schema(description = "감정 태그")
-    private final List<String> moodTags;
-
     @Schema(description = "퀘스트 완료(후기 작성) 여부")
     private final boolean isCompleted;
-
-    @Schema(description = "작성 여부 (isCompleted와 동일)")
-    private final boolean written;
 
     @Schema(description = "최종 수정 시각")
     private final LocalDateTime updatedAt;
@@ -56,9 +49,7 @@ public class QuestReviewResponse {
         this.questDescription = review.getQuest().getQuestDescription();
         this.discoveredNote = review.getDiscoveredNote();
         this.reviewText = review.getReviewText();
-        this.moodTags = review.getMoodTags();
         this.isCompleted = true;
-        this.written = true;
         this.updatedAt = review.getUpdatedAt();
     }
 }
