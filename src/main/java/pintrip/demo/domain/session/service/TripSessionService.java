@@ -5,12 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pintrip.demo.domain.dong.entity.Dong;
 import pintrip.demo.domain.dong.repository.DongRepository;
-import pintrip.demo.domain.place.dto.PlaceRandomResponse;
-import pintrip.demo.domain.place.entity.Place;
-import pintrip.demo.domain.place.service.PlaceService;
-import pintrip.demo.domain.quest.dto.QuestRandomResponse;
-import pintrip.demo.domain.quest.entity.Quest;
-import pintrip.demo.domain.quest.service.QuestService;
 import pintrip.demo.domain.session.dto.TripSessionCreateRequest;
 import pintrip.demo.domain.session.dto.TripSessionCreateResponse;
 import pintrip.demo.domain.session.dto.TripSessionResponse;
@@ -26,8 +20,6 @@ public class TripSessionService {
 
     private final TripSessionRepository tripSessionRepository;
     private final DongRepository dongRepository;
-    private final PlaceService placeService;
-    private final QuestService questService;
 
     public TripSessionCreateResponse createSession(TripSessionCreateRequest request) {
         Dong dong = dongRepository.findById(request.getDongId())
@@ -40,28 +32,23 @@ public class TripSessionService {
 
     @Transactional(readOnly = true)
     public TripSessionResponse getSession(String sessionId) {
-        return new TripSessionResponse(findSession(sessionId));
+        return new TripSessionResponse(findActiveSession(sessionId));
     }
 
-    public PlaceRandomResponse assignRandomPlace(String sessionId) {
-        TripSession session = findSession(sessionId);
-        Place place = placeService.getRandomPlaceByDongId(session.getDong().getId());
-        session.assignPlace(place);
-        return new PlaceRandomResponse(place);
+    @Transactional
+    public void completeSession(String sessionId) {
+        TripSession session = findActiveSession(sessionId);
+        session.complete();
     }
 
-    public QuestRandomResponse assignRandomQuest(String sessionId) {
-        TripSession session = findSession(sessionId);
-        if (session.getSelectedPlace() == null) {
-            throw new BusinessException(ErrorCode.PLACE_NOT_FOUND);
-        }
-        Quest quest = questService.getRandomQuestByPlaceId(session.getSelectedPlace().getId());
-        session.assignQuest(quest);
-        return new QuestRandomResponse(quest);
-    }
-
-    private TripSession findSession(String sessionId) {
-        return tripSessionRepository.findById(sessionId)
+    private TripSession findActiveSession(String sessionId) {
+        TripSession session = tripSessionRepository.findById(sessionId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.SESSION_NOT_FOUND));
+
+        if (!session.isActive() || session.isExpiredByTime()) {
+            throw new BusinessException(ErrorCode.SESSION_EXPIRED);
+        }
+
+        return session;
     }
 }

@@ -15,13 +15,13 @@ public class Dong {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(nullable = false)
-    private String city;
-
-    @Column(nullable = false)
-    private String district;
-
-    private String description;
+//    @Column(nullable = false)
+//    private String city;
+//
+//    @Column(nullable = false)
+//    private String district;
+//
+//    private String description;
 
     @Column(name = "is_active", nullable = false)
     private boolean active;

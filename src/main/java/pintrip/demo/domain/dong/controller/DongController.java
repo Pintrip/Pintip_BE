@@ -20,4 +20,9 @@ public class DongController {
     public ResponseEntity<List<DongResponse>> getDongs() {
         return ResponseEntity.ok(dongService.getActiveDongs());
     }
+
+    @GetMapping("/random")
+    public ResponseEntity<DongResponse> getRandomDong() {
+        return ResponseEntity.ok(dongService.getRandomDong());
+    }
 }
