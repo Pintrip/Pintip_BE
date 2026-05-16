@@ -57,4 +57,21 @@ public class TripSession {
         this.status = "COMPLETED";
         this.updatedAt = LocalDateTime.now();
     }
+
+    /** TTL 경과 또는 '새 여행' 등으로 세션을 종료한다. 이후 후기 작성 불가. */
+    public void expire() {
+        this.status = "EXPIRED";
+        this.updatedAt = LocalDateTime.now();
+        if (LocalDateTime.now().isBefore(expiredAt)) {
+            this.expiredAt = LocalDateTime.now();
+        }
+    }
+
+    public boolean isExpired() {
+        return "EXPIRED".equals(this.status);
+    }
+
+    public boolean isUsable() {
+        return isActive() && !isExpiredByTime();
+    }
 }

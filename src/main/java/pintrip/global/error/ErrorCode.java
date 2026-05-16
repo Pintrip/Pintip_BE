@@ -12,6 +12,7 @@ public enum ErrorCode {
     DONG_NOT_FOUND(HttpStatus.NOT_FOUND, "dongId를 찾을 수 없습니다."),
     PLACE_NOT_FOUND(HttpStatus.NOT_FOUND, "동네에 연결된 이미지 카드를 찾을 수 없습니다."),
     QUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 퀘스트를 찾을 수 없습니다."),
+    QUEST_REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 작성된 퀘스트 후기는 수정할 수 없습니다."),
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.");
 
     private final HttpStatus status;

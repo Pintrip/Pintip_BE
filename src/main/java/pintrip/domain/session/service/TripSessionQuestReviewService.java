@@ -27,29 +27,23 @@ public class TripSessionQuestReviewService {
     private final DongImageMappingRepository dongImageMappingRepository;
     private final ImageCardQuestRepository imageCardQuestRepository;
 
-    public QuestReviewResponse upsertReview(String sessionId, Long questId, QuestReviewUpsertRequest request) {
+    public QuestReviewResponse saveReview(String sessionId, Long questId, QuestReviewUpsertRequest request) {
         TripSession session = sessionStatusResolver.requireWritable(sessionId);
         DongImageMapping imageCard = validateImageCard(session, request.getImageCardId());
         ImageCardQuest quest = validateQuest(request.getImageCardId(), questId);
 
-        TripSessionQuestReview review = reviewRepository
-                .findBySession_IdAndQuest_Id(sessionId, questId)
-                .map(existing -> {
-                    existing.update(
-                            request.getDiscoveredNote(),
-                            request.getReviewText(),
-                            request.getMoodTags()
-                    );
-                    return existing;
-                })
-                .orElseGet(() -> TripSessionQuestReview.create(
-                        session,
-                        imageCard,
-                        quest,
-                        request.getDiscoveredNote(),
-                        request.getReviewText(),
-                        request.getMoodTags()
-                ));
+        if (reviewRepository.findBySession_IdAndQuest_Id(sessionId, questId).isPresent()) {
+            throw new BusinessException(ErrorCode.QUEST_REVIEW_ALREADY_EXISTS);
+        }
+
+        TripSessionQuestReview review = TripSessionQuestReview.create(
+                session,
+                imageCard,
+                quest,
+                request.getDiscoveredNote(),
+                request.getReviewText(),
+                request.getMoodTags()
+        );
 
         QuestReviewResponse response = new QuestReviewResponse(reviewRepository.save(review));
         sessionStatusResolver.resolve(session);

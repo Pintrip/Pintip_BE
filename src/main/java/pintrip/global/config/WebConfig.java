@@ -22,8 +22,9 @@ public class WebConfig implements WebMvcConfigurer {
 
 		registry.addMapping("/**")
 				.allowedOrigins(origins)
-				.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+				.allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
 				.allowedHeaders("*")
+				.exposedHeaders("X-Session-Id")
 				.maxAge(3600);
 	}
 

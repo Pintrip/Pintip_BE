@@ -8,7 +8,7 @@ import lombok.Getter;
 
 import java.util.List;
 
-@Schema(description = "퀘스트 후기 저장/수정 요청")
+@Schema(description = "퀘스트 후기 저장 요청")
 @Getter
 public class QuestReviewUpsertRequest {
 
