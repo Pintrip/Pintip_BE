@@ -61,7 +61,7 @@ public class TripSessionQuestReviewService {
     private DongImageMapping validateImageCard(TripSession session, Long imageCardId) {
         return dongImageMappingRepository.findById(imageCardId)
                 .filter(card -> card.getDong().getId().equals(session.getDong().getId()))
-                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
+                .orElseThrow(() -> new BusinessException(ErrorCode.IMAGE_CARD_NOT_IN_DONG));
     }
 
     private ImageCardQuest validateQuest(Long imageCardId, Long questId) {
@@ -71,7 +71,7 @@ public class TripSessionQuestReviewService {
 
     private void validateSelectedImageCard(TripSession session, Long imageCardId) {
         if (!session.getSelectedImageCard().getId().equals(imageCardId)) {
-            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+            throw new BusinessException(ErrorCode.IMAGE_CARD_NOT_SELECTED);
         }
     }
 }
