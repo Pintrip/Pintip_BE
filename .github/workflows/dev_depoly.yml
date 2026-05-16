@@ -3,7 +3,7 @@ name: Dev CI/CD
 on:
   pull_request:
     branches:
-      - develop
+      - main
     types:
       - closed
   workflow_dispatch: # 수동 실행 지원
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     # 수정: PR이 merge되었거나, 혹은 수동으로 실행(workflow_dispatch)했을 때만 작동하도록 변경
     if: |
-      (github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'develop') ||
+      (github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main') ||
       github.event_name == 'workflow_dispatch'
 
     steps:
