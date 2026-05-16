@@ -44,7 +44,7 @@ public class DongContentService {
 
         List<DongImageMapping> mappings = dongImageMappingRepository.findAllByDongIdOrderByIdAsc(dongId);
         if (mappings.isEmpty()) {
-            throw new BusinessException(ErrorCode.PLACE_NOT_FOUND);
+            throw new BusinessException(ErrorCode.IMAGE_CARD_NOT_FOUND);
         }
 
         List<Long> imageCardIds = mappings.stream()
@@ -66,7 +66,7 @@ public class DongContentService {
                 .map(mapping -> {
                     List<ImageCardQuestResponse> quests = questMap.get(mapping.getId());
                     if (quests == null || quests.size() != 3) {
-                        throw new BusinessException(ErrorCode.QUEST_NOT_FOUND);
+                        throw new BusinessException(ErrorCode.QUEST_DATA_INVALID);
                     }
                     return new ImageCardResponse(mapping, quests);
                 })
@@ -80,7 +80,7 @@ public class DongContentService {
 
         var session = sessionStatusResolver.resolveForRead(sessionId);
         if (!session.getDong().getId().equals(dongId)) {
-            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+            throw new BusinessException(ErrorCode.SESSION_DONG_MISMATCH);
         }
 
         return reviewRepository.findAllBySession_IdOrderByImageCard_IdAscQuest_QuestOrderAsc(sessionId)
@@ -90,8 +90,11 @@ public class DongContentService {
     }
 
     private Dong findActiveDong(Long dongId) {
-        return dongRepository.findById(dongId)
-                .filter(Dong::isActive)
+        Dong dong = dongRepository.findById(dongId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.DONG_NOT_FOUND));
+        if (!dong.isActive()) {
+            throw new BusinessException(ErrorCode.DONG_INACTIVE);
+        }
+        return dong;
     }
 }
