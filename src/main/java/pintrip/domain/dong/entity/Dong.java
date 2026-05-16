@@ -26,6 +26,7 @@ public class Dong {
     @Column(name = "is_active", nullable = false)
     private boolean active;
 
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false, insertable = false, updatable = false,
+            columnDefinition = "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 }

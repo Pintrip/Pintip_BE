@@ -40,6 +40,23 @@
 
 - `schema.sql`: 테이블 정의
 - `data.sql`: CSV 기반 seed 데이터
+- `rds-migrate.sql`: RDS에 JPA로 만든 테이블에 `created_at` DEFAULT 맞추기 (1회)
+
+### RDS에 seed 넣기 (순서 고정)
+
+```text
+1. dongs INSERT (created_at 포함) — 이미 10건 있으면 스킵
+2. rds-reset-content.sql  ← quest_code_1 오류 시 필수 (구 mappings DROP)
+3. data.sql 에서 dong_image_mappings + image_card_quests 만 실행
+```
+
+| 증상 | 조치 |
+|------|------|
+| `quest_code_1 doesn't have a default value` | **구 테이블** → `rds-reset-content.sql` 실행 후 mappings INSERT |
+| `Duplicate entry '1' for key 'dongs.PRIMARY'` | dongs는 **이미 들어감** → 다시 INSERT 하지 말 것 |
+| `image_card_quests` 없음 | `rds-reset-content.sql` 후 quests INSERT |
+
+---
 
 로컬 MySQL 볼륨을 초기화해야 새 seed를 다시 적용할 수 있다.
 

@@ -4,18 +4,18 @@
 -- 동네 10개 / 이미지 카드 30개 / 카드별 퀘스트 90개
 -- =========================================================
 
-INSERT INTO dongs (id, name, is_active)
+INSERT INTO dongs (id, name, is_active, created_at)
 VALUES
-       (1, '성수동', TRUE),
-       (2, '망원동', TRUE),
-       (3, '연남동', TRUE),
-       (4, '해방촌', TRUE),
-       (5, '문래동', TRUE),
-       (6, '후암동', TRUE),
-       (7, '창신동', TRUE),
-       (8, '익선동', TRUE),
-       (9, '신당동', TRUE),
-       (10, '삼청동', TRUE);
+       (1, '성수동', TRUE, CURRENT_TIMESTAMP),
+       (2, '망원동', TRUE, CURRENT_TIMESTAMP),
+       (3, '연남동', TRUE, CURRENT_TIMESTAMP),
+       (4, '해방촌', TRUE, CURRENT_TIMESTAMP),
+       (5, '문래동', TRUE, CURRENT_TIMESTAMP),
+       (6, '후암동', TRUE, CURRENT_TIMESTAMP),
+       (7, '창신동', TRUE, CURRENT_TIMESTAMP),
+       (8, '익선동', TRUE, CURRENT_TIMESTAMP),
+       (9, '신당동', TRUE, CURRENT_TIMESTAMP),
+       (10, '삼청동', TRUE, CURRENT_TIMESTAMP);
 
 INSERT INTO dong_image_mappings (dong_id, image_file, image_headline, image_sub_description)
 VALUES

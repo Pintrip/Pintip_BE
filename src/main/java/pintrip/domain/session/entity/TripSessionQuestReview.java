@@ -75,11 +75,4 @@ public class TripSessionQuestReview {
         review.updatedAt = review.createdAt;
         return review;
     }
-
-    public void update(String discoveredNote, String reviewText, List<String> moodTags) {
-        this.discoveredNote = discoveredNote;
-        this.reviewText = reviewText;
-        this.moodTags = moodTags != null ? new ArrayList<>(moodTags) : new ArrayList<>();
-        this.updatedAt = LocalDateTime.now();
-    }
 }

@@ -7,6 +7,7 @@ import pintrip.domain.dong.entity.Dong;
 import pintrip.domain.dong.repository.DongRepository;
 import pintrip.domain.session.dto.TripSessionCreateRequest;
 import pintrip.domain.session.dto.TripSessionCreateResponse;
+import pintrip.domain.session.dto.TripSessionExpiredResponse;
 import pintrip.domain.session.dto.TripSessionResponse;
 import pintrip.domain.session.entity.TripSession;
 import pintrip.domain.session.repository.TripSessionRepository;
@@ -31,9 +32,25 @@ public class TripSessionService {
         return new TripSessionCreateResponse(session);
     }
 
+    @Transactional(readOnly = true)
     public TripSessionResponse getSession(String sessionId) {
         TripSession session = sessionStatusResolver.resolveForRead(sessionId);
         return new TripSessionResponse(session);
+    }
+
+    @Transactional(readOnly = true)
+    public TripSessionExpiredResponse getExpiredStatus(String sessionId) {
+        TripSession session = sessionStatusResolver.resolveForRead(sessionId);
+        return new TripSessionExpiredResponse(session);
+    }
+
+    public TripSessionExpiredResponse expireSession(String sessionId) {
+        TripSession session = sessionStatusResolver.findSession(sessionId);
+        if (session.isActive()) {
+            session.expire();
+            tripSessionRepository.save(session);
+        }
+        return new TripSessionExpiredResponse(session);
     }
 
     public void completeSession(String sessionId) {

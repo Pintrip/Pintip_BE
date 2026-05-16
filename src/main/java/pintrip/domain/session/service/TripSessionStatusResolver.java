@@ -30,7 +30,12 @@ public class TripSessionStatusResolver {
         boolean allQuestsReviewed = reviewRepository.countBySession_Id(session.getId())
                 >= TripSessionPolicy.REQUIRED_QUEST_REVIEWS;
 
-        if (expired || allQuestsReviewed) {
+        if (expired) {
+            session.expire();
+            return tripSessionRepository.save(session);
+        }
+
+        if (allQuestsReviewed) {
             session.complete();
             return tripSessionRepository.save(session);
         }

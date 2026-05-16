@@ -29,16 +29,15 @@ class TripSessionStatusResolverTest {
     private TripSessionStatusResolver resolver;
 
     @Test
-    void resolve_completesWhenSessionExpired() {
+    void resolve_expiresWhenSessionTtlPassed() {
         TripSession session = activeSession("session-1");
         setField(session, "expiredAt", LocalDateTime.now().minusMinutes(1));
 
-        when(reviewRepository.countBySession_Id("session-1")).thenReturn(1L);
         when(tripSessionRepository.save(session)).thenReturn(session);
 
         TripSession resolved = resolver.resolve(session);
 
-        assertThat(resolved.getStatus()).isEqualTo("COMPLETED");
+        assertThat(resolved.getStatus()).isEqualTo("EXPIRED");
         verify(tripSessionRepository).save(session);
     }
 
