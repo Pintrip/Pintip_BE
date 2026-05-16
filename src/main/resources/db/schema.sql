@@ -13,14 +13,15 @@ DROP TABLE IF EXISTS quests;
 DROP TABLE IF EXISTS places;
 DROP TABLE IF EXISTS dongs;
 
-CREATE TABLE dongs (
-    id BIGINT PRIMARY KEY,                           -- 동 식별자(PK). 목데이터 고정 ID 사용
-    name VARCHAR(100) NOT NULL UNIQUE,              -- 동 이름(예: 성수1동). 프론트가 최종 1개 선택
+CREATE TABLE dongs
+(
+    id         BIGINT PRIMARY KEY,                             -- 동 식별자(PK). 목데이터 고정 ID 사용
+    name       VARCHAR(100) NOT NULL UNIQUE,                   -- 동 이름(예: 성수1동). 프론트가 최종 1개 선택
 --     city VARCHAR(50) NOT NULL,                      -- 시/도 정보(예: 서울특별시)
 --     district VARCHAR(50) NOT NULL,                  -- 구 정보(예: 성동구)
 --     description VARCHAR(255),                       -- 동에 대한 짧은 설명(선택)
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,        -- 노출 여부(목데이터 비활성화 용도)
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP -- 생성 시각
+    is_active  BOOLEAN      NOT NULL DEFAULT TRUE,             -- 노출 여부(목데이터 비활성화 용도)
+    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP -- 생성 시각
 );
 
 -- CREATE TABLE places (
@@ -47,12 +48,14 @@ CREATE TABLE dongs (
 --         FOREIGN KEY (place_id) REFERENCES places(id)
 -- );
 
-CREATE TABLE trip_sessions (
-    id VARCHAR(36) PRIMARY KEY,                      -- 세션 ID(UUID 문자열). 로그인 대체 식별자
-    dong_id BIGINT NOT NULL,                         -- 사용자가 최종 선택한 동 ID(FK -> dongs.id), 세션 생성 시 필수
-    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',    -- 세션 상태(ACTIVE/COMPLETED/CANCELLED)
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 세션 생성 시각
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 마지막 수정 시각
+CREATE TABLE trip_sessions
+(
+    id         VARCHAR(36) PRIMARY KEY,                        -- 세션 ID(UUID 문자열). 로그인 대체 식별자
+    dong_id    BIGINT      NOT NULL,                           -- 사용자가 최종 선택한 동 ID(FK -> dongs.id), 세션 생성 시 필수
+    status     VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',          -- 세션 상태(ACTIVE/COMPLETED/EXPIRED)
+    created_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 세션 생성 시각
+    updated_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 마지막 수정 시각
+    expired_at TIMESTAMP   NOT NULL                            -- 세션 만료 시각(생성 후 2일)
 --     CONSTRAINT fk_sessions_dong
 --         FOREIGN KEY (dong_id) REFERENCES dongs(id),
 --     CONSTRAINT fk_sessions_place
@@ -61,14 +64,15 @@ CREATE TABLE trip_sessions (
 --         FOREIGN KEY (selected_quest_id) REFERENCES quests(id)
 );
 
-CREATE TABLE trip_quests (
-    id VARCHAR(36) PRIMARY KEY,
-    session_id VARCHAR(36) NOT NULL, -- 소속된 세션 ID
-    place_description VARCHAR(100), -- 현재 세션에서 선택된 place (텍스트 그대로)
-    quest_description VARCHAR(100), -- 현재 세션에서 선택된 quest (텍스트 그대로)
-    discovery varchar(100), -- 발견한 것
-    review VARCHAR(300), -- 짧은 후기
-    is_completed BOOLEAN, -- 완료 여부
+CREATE TABLE trip_quests
+(
+    id                VARCHAR(36) PRIMARY KEY,
+    session_id        VARCHAR(36) NOT NULL, -- 소속된 세션 ID
+    place_description VARCHAR(100),         -- 현재 세션에서 선택된 place (텍스트 그대로)
+    quest_description VARCHAR(100),         -- 현재 세션에서 선택된 quest (텍스트 그대로)
+    discovery         varchar(100),         -- 발견한 것
+    review            VARCHAR(300),         -- 짧은 후기
+    is_completed      BOOLEAN               -- 완료 여부
 )
 
 -- CREATE INDEX idx_places_dong_id ON places(dong_id);          -- 동별 place 조회 최적화
