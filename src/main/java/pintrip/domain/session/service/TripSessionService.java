@@ -40,11 +40,13 @@ public class TripSessionService {
 
     public TripSessionCreateResponse createSession(TripSessionCreateRequest request) {
         Dong dong = dongRepository.findById(request.getDongId())
-                .filter(Dong::isActive)
                 .orElseThrow(() -> new BusinessException(ErrorCode.DONG_NOT_FOUND));
+        if (!dong.isActive()) {
+            throw new BusinessException(ErrorCode.DONG_INACTIVE);
+        }
         DongImageMapping imageCard = dongImageMappingRepository.findById(request.getImageCardId())
                 .filter(card -> card.getDong().getId().equals(dong.getId()))
-                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST));
+                .orElseThrow(() -> new BusinessException(ErrorCode.IMAGE_CARD_NOT_IN_DONG));
 
         TripSession session = TripSession.create(dong, imageCard);
         tripSessionRepository.save(session);
@@ -101,7 +103,7 @@ public class TripSessionService {
                 .map(quest -> new ImageCardQuestResponse(quest, completedQuestIds.contains(quest.getId())))
                 .toList();
         if (quests.size() != 3) {
-            throw new BusinessException(ErrorCode.QUEST_NOT_FOUND);
+            throw new BusinessException(ErrorCode.QUEST_DATA_INVALID);
         }
         return new ImageCardResponse(mapping, quests);
     }

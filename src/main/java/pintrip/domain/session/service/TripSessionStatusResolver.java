@@ -50,7 +50,8 @@ public class TripSessionStatusResolver {
     public TripSession requireWritable(String sessionId) {
         TripSession session = resolve(findSession(sessionId));
         if (!session.isActive()) {
-            throw new BusinessException(ErrorCode.SESSION_EXPIRED);
+            ErrorCode code = session.isExpired() ? ErrorCode.SESSION_EXPIRED : ErrorCode.SESSION_COMPLETED;
+            throw new BusinessException(code);
         }
         return session;
     }
