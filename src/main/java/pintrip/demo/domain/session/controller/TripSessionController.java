@@ -12,7 +12,7 @@ import pintrip.demo.domain.session.dto.TripSessionResponse;
 import pintrip.demo.domain.session.service.TripSessionService;
 
 @RestController
-@RequestMapping("/trip-sessions")
+@RequestMapping("/api/trip-sessions")
 @RequiredArgsConstructor
 public class TripSessionController {
 
@@ -24,17 +24,17 @@ public class TripSessionController {
         return ResponseEntity.ok(tripSessionService.createSession(request));
     }
 
-    @GetMapping("/{sessionId}")
+    @GetMapping
     public ResponseEntity<TripSessionResponse> getSession(@PathVariable String sessionId) {
         return ResponseEntity.ok(tripSessionService.getSession(sessionId));
     }
 
-    @PostMapping("/{sessionId}/place/random")
+    @PostMapping("/place/random")
     public ResponseEntity<PlaceRandomResponse> assignRandomPlace(@PathVariable String sessionId) {
         return ResponseEntity.ok(tripSessionService.assignRandomPlace(sessionId));
     }
 
-    @PostMapping("/{sessionId}/quest/random")
+    @PostMapping("/quest/random")
     public ResponseEntity<QuestRandomResponse> assignRandomQuest(@PathVariable String sessionId) {
         return ResponseEntity.ok(tripSessionService.assignRandomQuest(sessionId));
     }
