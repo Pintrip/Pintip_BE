@@ -1,6 +1,7 @@
 package pintrip.global.error;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.List;
 
@@ -51,6 +53,14 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = ErrorCode.INVALID_REQUEST;
         return ResponseEntity.status(errorCode.getStatus())
                 .body(ErrorResponse.of(errorCode));
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(
+                        ErrorCode.INVALID_REQUEST.name(),
+                        "요청한 API 경로를 찾을 수 없습니다. /backend 는 Vercel 프록시 전용이며 EB·로컬 직접 호출 시 붙이지 마세요."));
     }
 
     @ExceptionHandler(Exception.class)

@@ -15,6 +15,7 @@ import java.util.UUID;
 public class TripSession {
 
     @Id
+    @Column(length = 36)
     private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
