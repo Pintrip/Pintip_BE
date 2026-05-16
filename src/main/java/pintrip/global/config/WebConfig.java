@@ -22,6 +22,7 @@ public class WebConfig implements WebMvcConfigurer {
 
 		registry.addMapping("/**")
 				.allowedOrigins(origins)
+				.allowCredentials(true)
 				.allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
 				.allowedHeaders("*")
 				.exposedHeaders("X-Session-Id")
