@@ -20,6 +20,7 @@ public class TripSessionService {
 
     private final TripSessionRepository tripSessionRepository;
     private final DongRepository dongRepository;
+    private final TripSessionStatusResolver sessionStatusResolver;
 
     public TripSessionCreateResponse createSession(TripSessionCreateRequest request) {
         Dong dong = dongRepository.findById(request.getDongId())
@@ -30,26 +31,16 @@ public class TripSessionService {
         return new TripSessionCreateResponse(session);
     }
 
-    @Transactional(readOnly = true)
     public TripSessionResponse getSession(String sessionId) {
-        TripSession session = findActiveSession(sessionId);
+        TripSession session = sessionStatusResolver.resolveForRead(sessionId);
         return new TripSessionResponse(session);
     }
 
-    @Transactional
     public void completeSession(String sessionId) {
-        TripSession session = findActiveSession(sessionId);
-        session.complete();
-    }
-
-    private TripSession findActiveSession(String sessionId) {
-        TripSession session = tripSessionRepository.findById(sessionId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.SESSION_NOT_FOUND));
-
-        if (!session.isActive() || session.isExpiredByTime()) {
-            throw new BusinessException(ErrorCode.SESSION_EXPIRED);
+        TripSession session = sessionStatusResolver.findSession(sessionId);
+        if (session.isActive()) {
+            session.complete();
+            tripSessionRepository.save(session);
         }
-
-        return session;
     }
 }

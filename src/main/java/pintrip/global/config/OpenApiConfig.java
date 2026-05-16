@@ -16,7 +16,9 @@ public class OpenApiConfig {
 						.description("""
 								핀트립 백엔드 API. 로그인 없음 — sessionId(UUID)로 여행 상태 유지.
 
-								**플로우:** GET /dongs → (프론트 랜덤) → GET /dongs/{dongId}/image-cards → POST /trip-sessions
+								**플로우:** GET /dongs → GET /dongs/{dongId}/image-cards → POST /trip-sessions → PUT .../quest-reviews/{questId}
+
+								**세션 만료:** 생성 후 2일 (`TripSessionPolicy.EXPIRE_DAYS`)
 
 								**이미지:** API는 imageFile(파일명)만 반환. 실제 파일은 프론트 정적 자산에서 로드.
 								""")
