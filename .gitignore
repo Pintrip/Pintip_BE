@@ -1,0 +1,36 @@
+# OS
+.DS_Store
+
+# IntelliJ / IDE
+.idea/
+*.iml
+out/
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Java / Spring
+*.log
+logs/
+hs_err_pid*
+replay_pid*
+
+# Spring Boot runtime
+*.pid
+*.seed
+*.pid.lock
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Local DB / temp files
+*.h2.db
+*.mv.db
+*.trace.db
+
+# VSCode (if mixed editor usage)
+.vscode/
