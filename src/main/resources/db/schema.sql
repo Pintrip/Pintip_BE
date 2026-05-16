@@ -4,8 +4,8 @@
 -- =========================================================
 
 DROP TABLE IF EXISTS trip_sessions;
+DROP TABLE IF EXISTS image_card_quests;
 DROP TABLE IF EXISTS dong_image_mappings;
-DROP TABLE IF EXISTS quest_templates;
 DROP TABLE IF EXISTS dongs;
 
 -- 동네 마스터 (프론트 동 선택·랜덤 UI용, 10개)
@@ -17,16 +17,7 @@ CREATE TABLE dongs
     created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP -- 레코드 생성 시각
 );
 
--- 퀘스트 템플릿 마스터 (Q01~Q18, 여러 동네 카드에서 재사용)
-CREATE TABLE quest_templates
-(
-    code        VARCHAR(10) PRIMARY KEY,                        -- 퀘스트 코드 (Q01, Q02, … Q18)
-    title       VARCHAR(200)  NOT NULL,                         -- 퀘스트 제목 (예: 낡은 간판 찾기)
-    description VARCHAR(1000) NOT NULL,                         -- 수행 가이드 문구 (프론트 카드 본문)
-    created_at  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
--- 동네별 이미지 카드 + 퀘스트 3개 묶음 (동네당 3장, 총 30장)
+-- 동네별 이미지 카드 (동네당 3장, 총 30장)
 -- 실제 이미지 파일은 프론트 정적 자산, DB에는 파일명만 저장
 CREATE TABLE dong_image_mappings
 (
@@ -35,14 +26,21 @@ CREATE TABLE dong_image_mappings
     image_file            VARCHAR(255) NOT NULL,               -- 이미지 파일명 (프론트: /images/.../{image_file})
     image_headline        VARCHAR(255) NOT NULL,               -- 카드 대표 문장 (이미지 대표문장)
     image_sub_description VARCHAR(500) NOT NULL,               -- 카드 보조 설명
-    quest_code_1          VARCHAR(10)  NOT NULL,               -- 연결 퀘스트 1 → quest_templates.code
-    quest_code_2          VARCHAR(10)  NOT NULL,               -- 연결 퀘스트 2
-    quest_code_3          VARCHAR(10)  NOT NULL,               -- 연결 퀘스트 3
     created_at            TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_mapping_dong FOREIGN KEY (dong_id) REFERENCES dongs (id),
-    CONSTRAINT fk_mapping_quest_1 FOREIGN KEY (quest_code_1) REFERENCES quest_templates (code),
-    CONSTRAINT fk_mapping_quest_2 FOREIGN KEY (quest_code_2) REFERENCES quest_templates (code),
-    CONSTRAINT fk_mapping_quest_3 FOREIGN KEY (quest_code_3) REFERENCES quest_templates (code)
+    CONSTRAINT fk_mapping_dong FOREIGN KEY (dong_id) REFERENCES dongs (id)
+);
+
+-- 이미지 카드별 퀘스트 3개
+CREATE TABLE image_card_quests
+(
+    id                BIGINT AUTO_INCREMENT PRIMARY KEY,
+    image_card_id     BIGINT        NOT NULL,
+    quest_order       TINYINT       NOT NULL, -- 1,2,3
+    quest_title       VARCHAR(200)  NOT NULL,
+    quest_description VARCHAR(1000) NOT NULL,
+    created_at        TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_card_quest_mapping FOREIGN KEY (image_card_id) REFERENCES dong_image_mappings (id),
+    CONSTRAINT uq_card_quest_order UNIQUE (image_card_id, quest_order)
 );
 
 -- 여행 세션 (로그인 대체: UUID). 프론트는 sessionId를 localStorage 등에 보관
@@ -58,4 +56,5 @@ CREATE TABLE trip_sessions
 );
 
 CREATE INDEX idx_mapping_dong_id ON dong_image_mappings (dong_id);
+CREATE INDEX idx_card_quest_card_id ON image_card_quests (image_card_id);
 CREATE INDEX idx_sessions_dong_id ON trip_sessions (dong_id);
